@@ -1,0 +1,213 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #1a2e35;
+}
+
+.calculator {
+    background: transparent;
+    padding: 20px;
+    max-width: 400px;
+    width: 40%;
+    text-align: center;
+    color: #f7a76c;
+}
+
+h1, h2 {
+    margin: 0 0 20px;
+    color: #f7a76c;
+}
+
+label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+select, input[type="number"] {
+    width: 100%;
+    padding: 8px 0;
+    margin-bottom: 20px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #f7a76c;
+    color: #f7a76c;
+    outline: none;
+    font-size: 16px;
+}
+
+
+
+.service option {
+    background-color: #1a2e35; 
+    color: #f7a76c; 
+}
+
+button {
+    padding: 10px 0;
+    width: 100%;
+    border: none;
+    background-color: #f7a76c;
+    color: #1a2e35;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #e6965e;
+}
+
+.result {
+    margin-top: 20px;
+    color: #f7a76c;
+}
+
+#services-container {
+    max-height: 400px; 
+    overflow-y: auto; 
+    margin-bottom: 20px; 
+}
+
+.service {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.service-header {
+    display: flex;
+    align-items: center;
+}
+
+.service-header select {
+    flex-grow: 1;
+}
+
+.remove-button {
+    font-size: 18px;
+    color: #e58b4b;
+    cursor: pointer;
+    user-select: none;
+    margin-left: 10px;
+}
+
+.remove-button:hover {
+    color: #e6965e;
+}
+
+.quantity-container {
+    margin-top: 10px;
+}
+
+.quantity-container label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.quantity-container input[type="number"] {
+    flex-grow: 1;
+}
+
+#services-container {
+    overflow-y: auto; 
+    margin-bottom: 20px;
+    padding-right: 10px;
+}
+
+#services-container::-webkit-scrollbar {
+    width: 8px; 
+}
+
+#services-container::-webkit-scrollbar-track {
+    background: #1a2e35; 
+}
+
+#services-container::-webkit-scrollbar-thumb {
+    background-color: #f7a76c; 
+    border-radius: 4px; 
+}
+
+#services-container::-webkit-scrollbar-thumb:hover {
+    background-color: #e6965e; 
+}
+
+
+/* Для мобильных устройств (ширина экрана до 480px) */
+@media (max-width: 480px) {
+    .calculator {
+        max-width: 100%;
+        width: 90%;
+        padding: 10px;
+    }
+
+    h1, h2 {
+        font-size: 20px;
+    }
+
+    button {
+        font-size: 14px;
+        padding: 8px 0;
+    }
+
+    select, input[type="number"] {
+        font-size: 14px;
+        padding: 6px 0;
+    }
+}
+
+/* Для планшетов (ширина экрана до 768px) */
+@media (max-width: 768px) {
+    .calculator {
+        max-width: 80%;
+    }
+    
+    #services-container {
+        max-height: 400px; 
+        overflow-y: auto; 
+        margin-bottom: 10px; 
+    }
+
+    h1, h2 {
+        font-size: 24px;
+    }
+
+    button {
+        font-size: 15px;
+        padding: 9px 0;
+    }
+
+    select, input[type="number"] {
+        font-size: 15px;
+        padding: 7px 0;
+    }
+}
+
+/* Для больших экранов (ширина экрана более 1200px) */
+@media (min-width: 1200px) {
+    .calculator {
+        max-width: 600px;
+        width: 50%;
+    }
+
+    h1, h2 {
+        font-size: 28px;
+    }
+
+    button {
+        font-size: 18px;
+        padding: 12px 0;
+    }
+
+    select, input[type="number"] {
+        font-size: 18px;
+        padding: 10px 0;
+    }
+}

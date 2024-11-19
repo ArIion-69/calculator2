@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор услуг</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.10.2/dist/cdn.min.js" defer></script>
+</head>
+<body>
+    <div class="calculator" x-data="serviceCalculator()">
+        <h1>Калькулятор услуг</h1>
+
+        <!-- Контейнер для добавленных услуг -->
+        <div id="services-container">
+            <template x-for="(service, index) in services" :key="index">
+                <div class="service">
+                    <div class="service-header">
+                        <!-- Выбор услуги -->
+                        <select x-model="service.selectedService" @change="updateSubservices(service)">
+                            <option value="">-- Выберите услугу --</option>
+                            <template x-for="serviceName in Object.keys(allServices)" :key="serviceName">
+                                <option :value="serviceName" x-text="serviceName"></option>
+                            </template>
+                        </select>
+
+                        <!-- Кнопка удаления услуги -->
+                        <span class="remove-button" @click="removeService(index)">✖</span>
+                    </div>
+
+                    <!-- Подпункты (если есть) -->
+                    <template x-if="service.subservices && Object.keys(service.subservices).length > 0">
+                        <select x-model="service.selectedSubservice" @change="setQuantityUnitAndPrice(service)">
+                            <option value="">-- Выберите подпункт --</option>
+                            <template x-for="subserviceName in Object.keys(service.subservices)" :key="subserviceName">
+                                <option :value="subserviceName" x-text="subserviceName"></option>
+                            </template>
+                        </select>
+                    </template>
+
+                    <!-- Ввод количества -->
+                    <div class="quantity-container" x-show="service.unit && service.price">
+                        <label x-text="`Введите количество (${service.unit}):`"></label>
+                        <input type="number" min="1" x-model.number="service.quantity" @input="calculateTotal">
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- Кнопка для добавления новой услуги -->
+        <button @click="addService()">Добавить услугу</button>
+
+        <!-- Кнопки действия и отображение итоговой суммы -->
+        <div class="buttons">
+            <button @click="calculateTotal()">Рассчитать</button>
+            <button @click="clearCalculator()">Очистить</button>
+        </div>
+
+        <div class="result">
+            <h2>Итоговая сумма: <span x-text="total.toFixed(2)"></span> USD</h2>
+        </div>
+    </div>
+
+    <script>
+        // Определение калькулятора услуг с помощью Alpine.js
+        function serviceCalculator() {
+            return {
+                // Изначально пустой массив для услуг
+                services: [],
+                // Общая сумма
+                total: 0,
+                // Данные по всем услугам и их подпунктам
+                allServices: {
+                    "Прозвонка проводов": { unit: "точка", price: 8, subservices: {} },
+                    "Установка подразетников": { unit: "шт", price: 1.5, subservices: {} },
+                    "Устройство штрабы в штукатурке + замазка": { unit: "пм", price: 2, subservices: {} },
+                    "Разводка проводки": {
+                        unit: "точка",
+                        price: 6,
+                        subservices: {
+                            "димер освещения": { unit: "точка", price: 6 },
+                            "датчик утечки": { unit: "точка", price: 6 },
+                            "датчик температуры (теплый пол)": { unit: "точка", price: 6 },
+                            "клапана (отопления.коллектор)": { unit: "точка", price: 6 },
+                            "датчик температуры (комнаты)": { unit: "точка", price: 6 },
+                            "прочие": { unit: "точка", price: 6 }
+                        }
+                    },
+                    "Разводка проводки 220 В": {
+                        unit: "точка",
+                        price: 6,
+                        subservices: {
+                            "220 фонкоил внутрений и внешний агрегат": { unit: "точка", price: 6 },
+                            "220 реверсы выкл": { unit: "точка", price: 6 },
+                            "220 выключатель": { unit: "точка", price: 6 },
+                            "220 освешение люстра": { unit: "точка", price: 6 },
+                            "220 бра,подцветка": { unit: "точка", price: 6 }
+                        }
+                    },
+                    "Разводка проводки 220 В (розеток и прочие)": {
+                        unit: "точка",
+                        price: 6,
+                        subservices: {
+                            "розетки (220)": { unit: "точка", price: 6 },
+                            "вытяжки": { unit: "точка", price: 6 },
+                            "освешение (споты,треки)": { unit: "точка", price: 6 },
+                            "Точки в шитовой": { unit: "точка", price: 6 }
+                        }
+                    },
+                    "Монтаж слаботочных систем": {
+                        unit: "пм",
+                        price: 1.5,
+                        subservices: {
+                            "ТВ": { unit: "пм", price: 1.5 },
+                            "LAN.WI-FI": { unit: "пм", price: 1.5 }
+                        }
+                    },
+                    "Прокладка кабеля до главного щита": { unit: "мп", price: 2, subservices: {} },
+                    "Монтаж 50 трубы для ТВ": { unit: "пм", price: 5, subservices: {} },
+                    "Установка этажных щитов + сборка": { unit: "автомат", price: 4, subservices: {} },
+                    "Установка и сборка слаботочного щита": { unit: "автомат", price: 50, subservices: {} },
+                    "Установка БП в трек": { unit: "шт", price: 3, subservices: {} },
+                    "Установка лед ленты": { unit: "мп", price: 2, subservices: {} },
+                    "Прокладка кабеля до варочной панели": { unit: "пм", price: 2, subservices: {} },
+                    "Монтаж гофры": { unit: "мп", price: 0.5, subservices: {} },
+                    "Монтаж теплого пола": { unit: "шт", price: 1, subservices: {} },
+                    "Установка терморегулятора": { unit: "шт", price: 4, subservices: {} },
+                    "Установка розеток, выключателей": { unit: "шт", price: 2.5, subservices: {} },
+                    "Установка спотов": { unit: "шт", price: 3.5, subservices: {} }
+                },
+                // Добавление новой услуги
+                addService() {
+                    this.services.push({
+                        selectedService: "",
+                        selectedSubservice: "",
+                        subservices: null,
+                        unit: null,
+                        price: 0,
+                        quantity: 1
+                    });
+                },
+
+                // Удаление услуги по индексу
+                removeService(index) {
+                    this.services.splice(index, 1);
+                    this.calculateTotal();
+                },
+
+                // Обновление подпунктов, если они есть
+                updateSubservices(service) {
+                    const selectedServiceName = service.selectedService;
+                    const selectedService = this.allServices[selectedServiceName];
+                    if (selectedService && selectedService.subservices && Object.keys(selectedService.subservices).length > 0) {
+                        service.subservices = selectedService.subservices;
+                        service.unit = null;
+                        service.price = 0;
+                    } else if (selectedService) {
+                        service.subservices = null;
+                        service.unit = selectedService.unit;
+                        service.price = selectedService.price;
+                        this.calculateTotal();
+                    }
+                },
+
+                // Установка единицы измерения и цены для подпункта
+                setQuantityUnitAndPrice(service) {
+                    const subservice = service.subservices[service.selectedSubservice];
+                    service.unit = subservice.unit;
+                    service.price = subservice.price;
+                    this.calculateTotal();
+                },
+
+                // Рассчет итоговой суммы
+                calculateTotal() {
+                    this.total = this.services.reduce((sum, service) => {
+                        return sum + (service.price * service.quantity);
+                    }, 0);
+                },
+
+                // Очистка калькулятора
+                clearCalculator() {
+                    this.services = [];
+                    this.total = 0;
+                }
+            };
+        }
+    </script>
+</body>
+</html>
